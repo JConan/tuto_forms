@@ -3,6 +3,35 @@
 	import 'the-new-css-reset/css/reset.css';
 </script>
 
-<div>
+<header>
+	<ul>
+		<li>
+			<a href="/">Home</a>
+		</li>
+		<li>
+			<a href="/catalogue">Catalogue</a>
+		</li>
+	</ul>
+</header>
+
+<main>
 	<slot />
-</div>
+</main>
+
+<style>
+	ul {
+		margin-bottom: 3rem;
+		width: 500px;
+		display: flex;
+
+		& li {
+			margin-right: 20px;
+			font-size: 26px;
+			text-decoration: underline;
+
+			&:hover {
+				font-weight: bold;
+			}
+		}
+	}
+</style>
