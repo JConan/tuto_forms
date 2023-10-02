@@ -4,7 +4,7 @@ export interface Article {
     price: number
 }
 
-export const articles: Article[] = [
+const articles: Article[] = [
     {
         id: 1,
         name: "pain",
@@ -26,3 +26,11 @@ export const articles: Article[] = [
         price: 0.5
     }
 ]
+
+export function getArticles() {
+    // récupère les données depuis une API ou une connection à une base de données
+
+    console.log("data: login & mdp - sensible information !!!!")
+
+    return articles
+}
