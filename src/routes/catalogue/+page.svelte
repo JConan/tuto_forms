@@ -1,4 +1,7 @@
 <script lang="ts">
+	import type { Article } from '$lib/server/articles.js';
+	import { get } from 'svelte/store';
+
 	export let data;
 
 	interface Item {
@@ -21,9 +24,22 @@
 		cart = [...cart];
 	}
 
-	function getArticle(id: number) {
-		return data.articles.find((article) => article.id === id);
+	function removeItem(id: number) {
+		const itemIdx = cart.findIndex((item) => item.id === id);
+		if (itemIdx > -1) {
+			cart[itemIdx].number -= 1;
+			// force svelte reactivity
+			cart = [...cart.filter((item) => item.number > 0)];
+		}
 	}
+
+	function getArticle(id: number) {
+		return data.articles.find((article) => article.id === id)!;
+	}
+
+	$: cartTotal = cart
+		.map((item) => getArticle(item.id).price * item.number)
+		.reduce((total, subTotal) => total + subTotal, 0);
 </script>
 
 <ul>
@@ -32,6 +48,7 @@
 			<span>{article.name}</span>
 			<span>{article.price}€</span>
 			<button on:click={() => addItem(article.id)}>+</button>
+			<button on:click={() => removeItem(article.id)}>-</button>
 		</div>
 	{/each}
 </ul>
@@ -44,10 +61,17 @@
 			{#each cart as cartItem}
 				<li>
 					<span>
-						{getArticle(cartItem.id)?.name} x {cartItem.number}
+						{getArticle(cartItem.id).name} x {cartItem.number}
+					</span>
+					<span>
+						{getArticle(cartItem.id).price * cartItem.number} €
 					</span>
 				</li>
 			{/each}
+			<li class="total">
+				<span>total</span>
+				<span>{cartTotal} €</span>
+			</li>
 		</ul>
 	{/if}
 </div>
@@ -64,5 +88,17 @@
 	}
 	.cart {
 		margin-top: 3rem;
+
+		& ul li {
+			display: flex;
+			justify-content: space-between;
+		}
+
+		& .total {
+			margin-top: 1rem;
+			border-top: 2px solid var(--silver);
+			font-size: 18px;
+			font-weight: bold;
+		}
 	}
 </style>
