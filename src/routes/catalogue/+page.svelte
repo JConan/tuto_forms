@@ -1,7 +1,4 @@
 <script lang="ts">
-	import type { Article } from '$lib/server/articles.js';
-	import { get } from 'svelte/store';
-
 	export let data;
 
 	interface Item {
