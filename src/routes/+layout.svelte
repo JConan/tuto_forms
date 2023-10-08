@@ -11,6 +11,9 @@
 		<li>
 			<a href="/catalogue">Catalogue</a>
 		</li>
+		<li>
+			<a href="/products">Products</a>
+		</li>
 	</ul>
 </header>
 
