@@ -1,4 +1,5 @@
 import { addProduct, getProducts } from '$lib/server/products.js'
+import { fail } from '@sveltejs/kit'
 
 
 export function load() {
@@ -21,7 +22,7 @@ export const actions = {
             return { success: true, products: getProducts() }
         }
 
-        return {
+        return fail(400, {
             success: false, errors: {
                 product_name: {
                     isError: newProduct.name === "",
@@ -32,6 +33,6 @@ export const actions = {
                     value: newProduct.price
                 },
             }
-        }
+        })
     },
 }
