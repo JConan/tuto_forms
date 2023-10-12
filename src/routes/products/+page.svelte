@@ -1,12 +1,19 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	// import { enhance } from '$app/forms';
+	import { SyncLoader } from 'svelte-loading-spinners';
+	import { superForm } from 'sveltekit-superforms/client';
+	import SuperDebug from 'sveltekit-superforms/client/SuperDebug.svelte';
 
 	export let data;
-	export let form;
+	const { form, errors, enhance, submitting } = superForm(data.form, {
+		invalidateAll: true,
+		resetForm: true
+	});
 
-	let products = data.products;
-	$: if (form && form.success) products = form.products!;
+	$: products = data.products;
 </script>
+
+<SuperDebug data={$form} />
 
 <p class="title">product list</p>
 
@@ -21,25 +28,27 @@
 
 <p class="title">New Product</p>
 <form method="POST" use:enhance>
-	<label for="product_name">Nom du produit</label>
-	<input type="text" name="product_name" value={form?.errors?.product_name.value || ''} />
+	<label for="name">Nom du produit</label>
+	<input type="text" name="name" bind:value={$form.name} />
 
-	<label for="product_price">Prix du produit</label>
-	<input type="text" name="product_price" value={form?.errors?.product_price.value || ''} />
+	<label for="price">Prix du produit</label>
+	<input type="text" name="price" bind:value={$form.price} />
 
-	<button formaction="?/add">ajouter</button>
+	{#if $submitting}
+		<button disabled>
+			<SyncLoader size="24" />
+		</button>
+	{:else}
+		<button formaction="?/add">ajouter</button>
+	{/if}
 </form>
 
-{#if form?.success === false}
-	<div class="errors">
-		<span class="title">errors</span>
-		{#if form?.errors?.product_name.isError}
-			<span>nom du produit non défini</span>
-		{/if}
-		{#if form?.errors?.product_price.isError}
-			<span>prix du produit non défini</span>
-		{/if}
-	</div>
+{#if $errors.name}
+	<p class="errors">{$errors.name}</p>
+{/if}
+
+{#if $errors.price}
+	<p class="errors">{$errors.price}</p>
 {/if}
 
 <style>

@@ -1,38 +1,34 @@
-import { addProduct, getProducts } from '$lib/server/products.js'
+import { addProduct, getProducts } from '$lib/server/products'
 import { fail } from '@sveltejs/kit'
+import { z } from "zod"
+import { superValidate } from 'sveltekit-superforms/server';
 
+const NewProductSchema = z.object({
+    name: z.string().min(1, { message: "le nom doit avoir au moins 1 caractère" }),
+    price: z.number().positive({ message: "le prix doit être positive et non nul" })
+})
 
-export function load() {
+export async function load({ depends }) {
+    depends("products")
+    const form = await superValidate(NewProductSchema);
+
     return {
+        form,
         products: getProducts()
     }
 }
 
 export const actions = {
     add: async ({ request }) => {
-        const formData = await request.formData()
-        const newProduct = {
-            name: formData.get('product_name')!.toString(),
-            price: Number.parseFloat(formData.get('product_price')!.toString())
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        const form = await superValidate(request, NewProductSchema);
+
+        if (!form.valid) {
+            return fail(400, { form });
         }
 
 
-        if (newProduct.name !== "" && !isNaN(newProduct.price)) {
-            addProduct(newProduct)
-            return { success: true, products: getProducts() }
-        }
-
-        return fail(400, {
-            success: false, errors: {
-                product_name: {
-                    isError: newProduct.name === "",
-                    value: newProduct.name
-                },
-                product_price: {
-                    isError: isNaN(newProduct.price),
-                    value: newProduct.price
-                },
-            }
-        })
+        addProduct(form.data)
+        return { form }
     },
 }
